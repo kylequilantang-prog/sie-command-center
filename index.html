@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <title>SIE Command Center · Kyle Quilantang</title>
+  <meta name="description" content="A finance-terminal study dashboard for the FINRA SIE exam." />
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SIE" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<div class="ticker">
+  <div><span class="pulse"></span>SIE COMMAND CENTER · KYLE QUILANTANG</div>
+  <div class="ticker-right">
+    <span>EXAM <strong>FRI 07.10.26 · 10:15 PT</strong></span>
+    <span>VENUE <strong>CAMARILLO</strong></span>
+    <span id="liveTime">LIVE <strong>--:--</strong></span>
+  </div>
+</div>
+
+<section class="hero">
+  <div>
+    <div class="hero-label">Securities Industry Essentials · FINRA</div>
+    <h1 class="hero-title">The path to <em>licensed</em>.<br/>One exam between here and there.</h1>
+    <p class="hero-sub">9.5 weeks. 76 hours of focused study. Free-resource stack. NotebookLM-augmented. Three consecutive 80%+ practice exams gate the test day. Discipline beats intensity.</p>
+  </div>
+  <div class="countdown">
+    <div class="countdown-number" id="daysLeft">—</div>
+    <div class="countdown-label">Days to Exam</div>
+    <div class="countdown-date">07.10.2026 · 10:15 AM</div>
+  </div>
+</section>
+
+<div class="grid">
+
+  <div class="col">
+
+    <div class="today-block">
+      <div class="today-day" id="todayDay">TODAY · LOADING…</div>
+      <div class="today-task" id="todayTask">—</div>
+      <div class="today-detail" id="todayDetail">Loading current focus…</div>
+      <div class="today-actions">
+        <button class="btn primary" data-action="open-session">Log Session ✓</button>
+        <button class="btn" data-action="open-notebook">NotebookLM</button>
+        <button class="btn" data-action="open-ticktick">TickTick</button>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="label">Streak</div>
+        <div class="value"><em id="streak">0</em></div>
+        <div class="delta">days consecutive</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Hrs Logged</div>
+        <div class="value" id="hoursLogged">0</div>
+        <div class="delta">of 76 target</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Confidence</div>
+        <div class="value" id="confValue">—</div>
+        <div class="delta">7-day avg / 5</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Overall <strong>Progress</strong></div>
+        <div class="panel-meta" id="phaseLabel">PHASE — / 5</div>
+      </div>
+      <div class="progress-stat">
+        <div class="num" id="progressNum">— <em>/ 60</em></div>
+        <div class="pct" id="progressPct">0% complete</div>
+      </div>
+      <div class="bar"><div class="bar-fill" id="barFill" style="width: 0%"></div></div>
+      <div class="bar-segments" id="phaseSegs">
+        <div class="seg"><div class="seg-label">FOUND</div></div>
+        <div class="seg"><div class="seg-label">PRODUCTS</div></div>
+        <div class="seg"><div class="seg-label">TRADING</div></div>
+        <div class="seg"><div class="seg-label">EXAMS</div></div>
+        <div class="seg"><div class="seg-label">FINAL</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Study <strong>Phases</strong></div>
+        <div class="panel-meta">9 WEEKS</div>
+      </div>
+      <div class="phase-scroll">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Phase</th><th>Window</th><th>Pass Gate</th></tr>
+          </thead>
+          <tbody id="phaseTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Practice <strong>Exams</strong></div>
+        <div class="panel-meta">3-CONSECUTIVE 80% GATE</div>
+      </div>
+      <div id="examList"></div>
+      <div class="gate-status" id="gateStatus">
+        <div class="gate-label">Test Day Eligibility Gate</div>
+        <div class="gate-text" id="gateText">Awaiting practice exam scores</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Score <strong>Trajectory</strong></div>
+        <div class="panel-meta">PASS LINE 80%</div>
+      </div>
+      <div id="chartWrap">
+        <div class="chart-empty">No exams logged yet</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Recent <strong>Sessions</strong></div>
+        <div class="panel-meta" id="sessionsMeta">0 LOGGED</div>
+      </div>
+      <div id="sessionsList">
+        <div class="chart-empty">No sessions logged yet · Start tomorrow</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col">
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Weakness <strong>Tracker</strong></div>
+        <div class="panel-meta">DRILL TARGETS</div>
+      </div>
+      <div id="weaknessList">
+        <div class="chart-empty">Tag weak units when logging exam scores</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Resource <strong>Stack</strong></div>
+        <div class="panel-meta">FREE · $0</div>
+      </div>
+      <div class="resource-list">
+        <a class="resource" href="https://www.youtube.com/@CapitalAdvantageTutoring" target="_blank" rel="noopener">
+          <span class="resource-tag">VIDEO</span>
+          <span class="resource-name">Capital Advantage · Ken Finnen</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://www.youtube.com/@series7guru" target="_blank" rel="noopener">
+          <span class="resource-tag">VIDEO</span>
+          <span class="resource-name">Series 7 Guru · Dean Tinney</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://www.finra.org/registration-exams-ce/qualification-exams/sie/content-outline" target="_blank" rel="noopener">
+          <span class="resource-tag">PDF</span>
+          <span class="resource-name">FINRA SIE Content Outline</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://siepracticeexam.com" target="_blank" rel="noopener">
+          <span class="resource-tag">PRACTICE</span>
+          <span class="resource-name">SIEPracticeExam.com</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://www.knopman.com/sie-exam-prep/" target="_blank" rel="noopener">
+          <span class="resource-tag">PRACTICE</span>
+          <span class="resource-name">Knopman Marks · Free Tests</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://quizlet.com/subject/sie/" target="_blank" rel="noopener">
+          <span class="resource-tag">CARDS</span>
+          <span class="resource-name">Quizlet · SIE Sets</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://notebooklm.google.com" target="_blank" rel="noopener">
+          <span class="resource-tag">AI</span>
+          <span class="resource-name">NotebookLM · Primary Aid</span>
+          <span class="resource-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Whiteboard <strong>Maps</strong></div>
+        <div class="panel-meta">CONNECT THE DOTS</div>
+      </div>
+      <div class="resource-list" id="whiteboardList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">The <strong>Why</strong></div>
+        <div class="panel-meta">REMEMBER</div>
+      </div>
+      <div class="support-quote">Nurses don't get a financial education. I'm building one — for them, and for the family I'll have. This exam is the door.</div>
+      <div class="support-attr">— Mission Anchor</div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <div>SIE COMMAND CENTER · v2.0 · LOCAL PWA</div>
+  <div>
+    <button data-action="export">Export</button> ·
+    <button data-action="import">Import</button> ·
+    <button data-action="reset">Reset</button>
+  </div>
+  <div>BUILT FOR <em>KYLE Q</em> · TEST DAY 07.10.26</div>
+</footer>
+
+<div class="modal-backdrop" id="sessionModal" data-dismiss="backdrop">
+  <div class="modal" role="dialog" aria-labelledby="sessionTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="sessionTitle">Log <strong>Session</strong></div>
+      <button class="modal-close" data-action="close-session" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-label">Hours Studied</div>
+        <div class="hour-grid" id="hourGrid"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Confidence (1–5)</div>
+        <div class="conf-row" id="confRow"></div>
+        <div class="conf-scale">
+          <span>Lost</span><span>Shaky</span><span>OK</span><span>Solid</span><span>Locked</span>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Topic / Notes (optional)</div>
+        <input id="sessionTopic" placeholder="e.g. Capital Advantage Ch 3 + 20 Quizlet cards" maxlength="200" />
+      </div>
+      <div class="modal-section">
+        <button class="btn primary" style="width:100%; padding:14px;" data-action="save-session">Log Session</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="examModal" data-dismiss="backdrop">
+  <div class="modal" role="dialog" aria-labelledby="examTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="examTitle">Log <strong>Exam Score</strong></div>
+      <button class="modal-close" data-action="close-exam" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-label" id="examModalSubtitle">Practice Exam #—</div>
+        <input id="examScore" type="number" min="0" max="100" placeholder="Score (0–100)" />
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Weak Units (tag what tripped you)</div>
+        <div class="tag-row" id="weakTagRow"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Notes (optional)</div>
+        <input id="examNotes" placeholder="What patterns showed up?" maxlength="200" />
+      </div>
+      <div class="modal-section">
+        <button class="btn primary" style="width:100%; padding:14px;" data-action="save-exam">Save Score</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="test-day" id="testDay">
+  <div class="test-day-tag">TEST DAY · 07.10.2026</div>
+  <div class="test-day-time">10:15</div>
+  <div class="test-day-msg">Drive to Camarillo. You've got this.</div>
+  <div class="test-day-detail">
+    <div>LEAVE WAGON WHEEL · <strong>9:15 AM</strong></div>
+    <div>ARRIVE BY · <strong>9:45 AM</strong></div>
+    <div>VENTURA–CAMARILLO TEST CENTER</div>
+    <div>400 W VENTURA BLVD · STE 130 · CAMARILLO CA</div>
+    <div>ELIGIBILITY ID · <strong>T0887186</strong></div>
+  </div>
+  <button class="test-day-exit" data-action="exit-testday">[ exit test day mode ]</button>
+</div>
+
+<div class="install-hint" id="installHint">
+  <span>Add to Home Screen → Share button → "Add to Home Screen"</span>
+  <button data-action="dismiss-install">Got it</button>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

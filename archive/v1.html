@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SIE Command Center — Kyle Quilantang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-elev: #131313;
+    --bg-card: #181818;
+    --border: #262626;
+    --border-strong: #353535;
+    --text: #f5f1e8;
+    --text-dim: #8a8478;
+    --text-faint: #4a463f;
+    --accent: #ff7a1a;
+    --accent-soft: rgba(255, 122, 26, 0.12);
+    --accent-line: rgba(255, 122, 26, 0.35);
+    --green: #5fb878;
+    --red: #d65454;
+    --yellow: #d4a02a;
+    --display: 'Fraunces', Georgia, serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(255, 122, 26, 0.04), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(255, 122, 26, 0.03), transparent 50%);
+  }
+
+  /* ===== HEADER / TICKER ===== */
+  .ticker {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elev);
+    padding: 10px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .ticker .pulse {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .ticker-right { display: flex; gap: 24px; }
+  .ticker-right span strong { color: var(--text); font-weight: 600; }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 48px 48px 40px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    align-items: end;
+  }
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(40px, 5vw, 72px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .hero-title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .hero-sub {
+    margin-top: 20px;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    font-size: 13px;
+    max-width: 540px;
+  }
+
+  .countdown {
+    text-align: right;
+  }
+  .countdown-number {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: clamp(80px, 9vw, 140px);
+    line-height: 0.85;
+    color: var(--text);
+    letter-spacing: -0.04em;
+  }
+  .countdown-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 12px;
+  }
+  .countdown-date {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 4px;
+  }
+
+  /* ===== MAIN GRID ===== */
+  .grid {
+    padding: 32px 48px 64px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+  }
+  .col { display: flex; flex-direction: column; gap: 24px; }
+
+  .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+  }
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .panel-title strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .panel-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .progress-stat .num {
+    font-family: var(--display);
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .progress-stat .num em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .progress-stat .pct {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .bar {
+    height: 4px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent) 0%, #ffaa66 100%);
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bar-segments {
+    display: flex;
+    margin-top: 14px;
+    gap: 2px;
+  }
+  .seg {
+    flex: 1;
+    height: 24px;
+    background: var(--border);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .seg:hover { background: var(--border-strong); }
+  .seg.done {
+    background: var(--accent);
+  }
+  .seg.current {
+    background: var(--accent-soft);
+    border-top: 2px solid var(--accent);
+  }
+  .seg-label {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
+  }
+
+  /* ===== PHASE TABLE ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.current-phase td {
+    background: var(--accent-soft);
+    border-left: 2px solid var(--accent);
+  }
+  tr.current-phase td:first-child {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  td.phase-num {
+    font-family: var(--display);
+    font-size: 18px;
+    color: var(--text-dim);
+    font-weight: 500;
+    width: 40px;
+  }
+  td.phase-name { color: var(--text); font-weight: 500; }
+  td.phase-dates { color: var(--text-dim); font-size: 11px; }
+  .gate-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 10px;
+    border: 1px solid var(--border-strong);
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .gate-pill.met { color: var(--green); border-color: var(--green); }
+  .gate-pill.active { color: var(--accent); border-color: var(--accent); }
+
+  /* ===== TODAY ===== */
+  .today-block {
+    border: 1px solid var(--accent);
+    padding: 24px;
+    background: linear-gradient(135deg, var(--accent-soft) 0%, transparent 100%);
+    position: relative;
+  }
+  .today-block::before {
+    content: 'NOW';
+    position: absolute;
+    top: -8px; left: 16px;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    padding: 2px 8px;
+  }
+  .today-day {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .today-task {
+    font-family: var(--display);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 8px 0 12px;
+    color: var(--text);
+  }
+  .today-detail {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .today-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .btn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn.primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .btn.primary:hover {
+    background: #ff8e3c;
+  }
+
+  /* ===== RESOURCE LIST ===== */
+  .resource-list { display: flex; flex-direction: column; gap: 0; }
+  .resource {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    transition: padding 0.2s;
+  }
+  .resource:last-child { border-bottom: none; }
+  .resource:hover {
+    padding-left: 8px;
+    color: var(--accent);
+  }
+  .resource-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
+    width: 60px;
+  }
+  .resource-name { font-size: 13px; }
+  .resource-arrow { color: var(--text-faint); }
+  .resource:hover .resource-arrow { color: var(--accent); }
+
+  /* ===== STAT CARDS ===== */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+  .stat-card .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .stat-card .value {
+    font-family: var(--display);
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-card .value em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .stat-card .delta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  /* ===== PRACTICE EXAMS ===== */
+  .exam-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .exam-row:last-child { border-bottom: none; }
+  .exam-num {
+    font-family: var(--display);
+    font-size: 16px;
+    color: var(--text-faint);
+  }
+  .exam-name { font-size: 12px; }
+  .exam-name strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .exam-name span { color: var(--text-dim); font-size: 11px; }
+  .exam-score {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .exam-score.locked { color: var(--text-faint); }
+  .exam-score.pass { color: var(--green); }
+  .exam-score.fail { color: var(--red); }
+  .exam-score.pending { color: var(--yellow); }
+
+  /* ===== GATE ===== */
+  .gate-status {
+    border: 2px solid var(--border-strong);
+    padding: 20px;
+    text-align: center;
+    margin-top: 16px;
+  }
+  .gate-status.met {
+    border-color: var(--green);
+    background: rgba(95, 184, 120, 0.06);
+  }
+  .gate-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .gate-text {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .gate-status.met .gate-text { color: var(--green); }
+
+  /* ===== SUPPORT ===== */
+  .support-quote {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--text);
+    border-left: 2px solid var(--accent);
+    padding-left: 20px;
+    margin: 16px 0;
+  }
+  .support-attr {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    padding: 24px 48px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+  }
+  footer em { color: var(--accent); font-style: normal; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 32px 24px; }
+    .hero { gap: 24px; }
+    .countdown { text-align: left; }
+    .grid { grid-template-columns: 1fr; padding: 24px; }
+    .stat-row { grid-template-columns: 1fr; }
+    .ticker { flex-direction: column; gap: 6px; align-items: flex-start; padding: 10px 16px; }
+    footer { flex-direction: column; gap: 8px; padding: 16px 24px; }
+  }
+
+  /* ===== STAGGERED ENTRANCE ===== */
+  .panel, .stat-card, .today-block {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .panel:nth-child(1) { animation-delay: 0.05s; }
+  .panel:nth-child(2) { animation-delay: 0.15s; }
+  .panel:nth-child(3) { animation-delay: 0.25s; }
+  .panel:nth-child(4) { animation-delay: 0.35s; }
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div><span class="pulse"></span>SIE COMMAND CENTER · KYLE QUILANTANG</div>
+  <div class="ticker-right">
+    <span>EXAM <strong>FRI 07.10.26 · 10:15 PT</strong></span>
+    <span>VENUE <strong>CAMARILLO</strong></span>
+    <span id="liveTime">LIVE <strong>--:--</strong></span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-label">Securities Industry Essentials · FINRA</div>
+    <h1 class="hero-title">The path to <em>licensed</em>.<br/>One exam between here and there.</h1>
+    <p class="hero-sub">9.5 weeks. 76 hours of focused study. Free-resource stack. NotebookLM-augmented. Three consecutive 80%+ practice exams gate the test day. Discipline beats intensity.</p>
+  </div>
+  <div class="countdown">
+    <div class="countdown-number" id="daysLeft">—</div>
+    <div class="countdown-label">Days to Exam</div>
+    <div class="countdown-date">07.10.2026 · 10:15 AM</div>
+  </div>
+</section>
+
+<!-- MAIN GRID -->
+<div class="grid">
+
+  <!-- LEFT COLUMN -->
+  <div class="col">
+
+    <!-- TODAY BLOCK -->
+    <div class="today-block">
+      <div class="today-day" id="todayDay">TODAY · LOADING…</div>
+      <div class="today-task" id="todayTask">—</div>
+      <div class="today-detail" id="todayDetail">Loading current focus…</div>
+      <div class="today-actions">
+        <button class="btn primary" onclick="logSession()">Log Session ✓</button>
+        <button class="btn" onclick="window.open('https://ticktick.com', '_blank')">TickTick</button>
+        <button class="btn" onclick="window.open('https://notebooklm.google.com', '_blank')">NotebookLM</button>
+      </div>
+    </div>
+
+    <!-- PROGRESS PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Overall <strong>Progress</strong></div>
+        <div class="panel-meta" id="phaseLabel">PHASE — / 5</div>
+      </div>
+      <div class="progress-stat">
+        <div class="num" id="progressNum">— <em>/ 66</em></div>
+        <div class="pct" id="progressPct">0% complete</div>
+      </div>
+      <div class="bar"><div class="bar-fill" id="barFill" style="width: 0%"></div></div>
+      <div class="bar-segments" id="phaseSegs">
+        <div class="seg"><div class="seg-label">FOUND</div></div>
+        <div class="seg"><div class="seg-label">PRODUCTS</div></div>
+        <div class="seg"><div class="seg-label">TRADING</div></div>
+        <div class="seg"><div class="seg-label">EXAMS</div></div>
+        <div class="seg"><div class="seg-label">FINAL</div></div>
+      </div>
+    </div>
+
+    <!-- PHASE TABLE -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Study <strong>Phases</strong></div>
+        <div class="panel-meta">9 WEEKS</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Phase</th><th>Window</th><th>Pass Gate</th></tr>
+        </thead>
+        <tbody id="phaseTable"></tbody>
+      </table>
+    </div>
+
+    <!-- PRACTICE EXAMS -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Practice <strong>Exams</strong></div>
+        <div class="panel-meta">3-CONSECUTIVE 80% GATE</div>
+      </div>
+      <div id="examList"></div>
+      <div class="gate-status" id="gateStatus">
+        <div class="gate-label">Test Day Eligibility Gate</div>
+        <div class="gate-text" id="gateText">Awaiting practice exam scores</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="col">
+
+    <!-- STATS -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="label">Streak</div>
+        <div class="value"><em id="streak">0</em></div>
+        <div class="delta">days consecutive</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Hrs Logged</div>
+        <div class="value" id="hoursLogged">0</div>
+        <div class="delta">of 76 target</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Confidence</div>
+        <div class="value" id="confValue">—</div>
+        <div class="delta">7-day avg / 5</div>
+      </div>
+    </div>
+
+    <!-- RESOURCES -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Resource <strong>Stack</strong></div>
+        <div class="panel-meta">FREE · $0</div>
+      </div>
+      <div class="resource-list">
+        <a class="resource" href="https://www.youtube.com/@CapitalAdvantageTutoring" target="_blank">
+          <span class="resource-tag">VIDEO</span>
+          <span class="resource-name">Capital Advantage · Ken Finnen</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://www.youtube.com/@series7guru" target="_blank">
+          <span class="resource-tag">VIDEO</span>
+          <span class="resource-name">Series 7 Guru · Dean Tinney</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://www.finra.org/registration-exams-ce/qualification-exams/sie/content-outline" target="_blank">
+          <span class="resource-tag">PDF</span>
+          <span class="resource-name">FINRA SIE Content Outline</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://siepracticeexam.com" target="_blank">
+          <span class="resource-tag">PRACTICE</span>
+          <span class="resource-name">SIEPracticeExam.com</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://www.knopman.com/sie-exam-prep/" target="_blank">
+          <span class="resource-tag">PRACTICE</span>
+          <span class="resource-name">Knopman Marks · Free Tests</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://quizlet.com/subject/sie/" target="_blank">
+          <span class="resource-tag">CARDS</span>
+          <span class="resource-name">Quizlet · SIE Sets</span>
+          <span class="resource-arrow">→</span>
+        </a>
+        <a class="resource" href="https://notebooklm.google.com" target="_blank">
+          <span class="resource-tag">AI</span>
+          <span class="resource-name">NotebookLM · Primary Aid</span>
+          <span class="resource-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- WHITEBOARD MAPS -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Whiteboard <strong>Maps</strong></div>
+        <div class="panel-meta">CONNECT THE DOTS</div>
+      </div>
+      <div class="resource-list">
+        <div class="resource"><span class="resource-tag">WK 1</span><span class="resource-name">Capital flow & participants</span><span class="resource-arrow">○</span></div>
+        <div class="resource"><span class="resource-tag">WK 2</span><span class="resource-name">Regulators (FINRA/SEC/MSRB/SIPC)</span><span class="resource-arrow">○</span></div>
+        <div class="resource"><span class="resource-tag">WK 3</span><span class="resource-name">Equity rights chart</span><span class="resource-arrow">○</span></div>
+        <div class="resource"><span class="resource-tag">WK 4</span><span class="resource-name">Yield curve & bond pricing</span><span class="resource-arrow">○</span></div>
+        <div class="resource"><span class="resource-tag">WK 5</span><span class="resource-name">VA mechanics (lean on WFG)</span><span class="resource-arrow">○</span></div>
+        <div class="resource"><span class="resource-tag">WK 6</span><span class="resource-name">Options strategies grid</span><span class="resource-arrow">○</span></div>
+        <div class="resource"><span class="resource-tag">WK 7</span><span class="resource-name">Order flow & T+1 settlement</span><span class="resource-arrow">○</span></div>
+      </div>
+    </div>
+
+    <!-- WHY -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">The <strong>Why</strong></div>
+        <div class="panel-meta">REMEMBER</div>
+      </div>
+      <div class="support-quote">Nurses don't get a financial education. I'm building one — for them, and for the family I'll have. This exam is the door.</div>
+      <div class="support-attr">— Mission Anchor</div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <div>SIE COMMAND CENTER · v1.0 · LOCAL DATA</div>
+  <div>BUILT FOR <em>KYLE Q</em> · TEST DAY 07.10.26</div>
+</footer>
+
+<script>
+  // ===== DATA =====
+  const EXAM_DATE = new Date('2026-07-10T10:15:00-07:00');
+  const STUDY_START = new Date('2026-05-11T06:00:00-07:00');
+
+  const PHASES = [
+    { num: 1, name: 'Foundation', start: '2026-05-11', end: '2026-05-24', gate: 'Ch 1–2 quizzes ≥70%' },
+    { num: 2, name: 'Products Deep Dive', start: '2026-05-25', end: '2026-06-14', gate: 'Product unit tests ≥75%' },
+    { num: 3, name: 'Trading & Accounts', start: '2026-06-15', end: '2026-06-26', gate: 'Operations tests ≥75%' },
+    { num: 4, name: 'Diagnostic & Drills', start: '2026-06-27', end: '2026-07-04', gate: '3× 80%+ exams' },
+    { num: 5, name: 'Final Push & Taper', start: '2026-07-05', end: '2026-07-09', gate: 'Sleep, rest, trust' }
+  ];
+
+  const WEEKLY_FOCUS = {
+    1: { topic: 'Capital Markets', detail: 'Capital Advantage videos 1–4. Take notes. Build participant flow whiteboard map Saturday.' },
+    2: { topic: 'Regulatory Framework', detail: 'FINRA, SEC, MSRB, SIPC. Two-Teachers method. NotebookLM regulator mind map.' },
+    3: { topic: 'Equity Securities', detail: 'Common, preferred, ADRs. Whiteboard the rights chart. SIEPracticeExam equity questions.' },
+    4: { topic: 'Debt Securities', detail: 'Corporate, muni, treasury. Yield curve mastery. CertFuel debt drills.' },
+    5: { topic: 'Packaged Products', detail: 'Mutual funds, ETFs, VAs. ⭐ Lean on WFG knowledge. Confidence anchor week.' },
+    6: { topic: 'Options + Retirement', detail: 'Calls, puts, basic spreads. IRA types. Whiteboard strategies grid.' },
+    7: { topic: 'Trading & Markets', detail: 'Order types, settlement, margin. Order flow whiteboard map.' },
+    8: { topic: 'Customer Accounts + Practice Exams', detail: 'Suitability, prohibited practices. Practice Exam #1 Saturday.' },
+    9: { topic: 'Final Push', detail: 'Practice Exams #2, #3. 80%+ on each. Light review only the final week.' },
+    10: { topic: 'Test Week', detail: 'Practice Exam #4 Monday. Light flashcards Tue–Wed. Rest Thursday.' }
+  };
+
+  const EXAMS = [
+    { num: 1, name: 'Diagnostic', date: '2026-06-27', label: 'Sat Jun 27' },
+    { num: 2, name: 'Gate Exam #1', date: '2026-07-03', label: 'Fri Jul 3' },
+    { num: 3, name: 'Gate Exam #2', date: '2026-07-04', label: 'Sat Jul 4' },
+    { num: 4, name: 'Gate Exam #3 · FINRA Official', date: '2026-07-06', label: 'Mon Jul 6' }
+  ];
+
+  // ===== STATE =====
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem('sie-state') || '{}'); } catch (e) { return {}; }
+  }
+  function saveState(s) { localStorage.setItem('sie-state', JSON.stringify(s)); }
+  let state = loadState();
+  state.sessions = state.sessions || []; // [{date, hours, confidence}]
+  state.examScores = state.examScores || {}; // {1: 72, 2: null, ...}
+
+  // ===== COUNTDOWN =====
+  function updateCountdown() {
+    const now = new Date();
+    const diff = EXAM_DATE - now;
+    const days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+    document.getElementById('daysLeft').textContent = days;
+
+    // Live time
+    const t = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    document.getElementById('liveTime').innerHTML = `LIVE <strong>${t} PT</strong>`;
+  }
+
+  // ===== PROGRESS =====
+  function getCurrentPhase() {
+    const now = new Date();
+    for (let p of PHASES) {
+      if (now <= new Date(p.end + 'T23:59:59-07:00')) return p;
+    }
+    return PHASES[PHASES.length - 1];
+  }
+
+  function getStudyWeek() {
+    const now = new Date();
+    if (now < STUDY_START) return 0;
+    const days = Math.floor((now - STUDY_START) / (1000 * 60 * 60 * 24));
+    return Math.min(10, Math.floor(days / 7) + 1);
+  }
+
+  function updateProgress() {
+    const totalDays = Math.floor((EXAM_DATE - STUDY_START) / (1000 * 60 * 60 * 24));
+    const elapsed = Math.max(0, Math.floor((new Date() - STUDY_START) / (1000 * 60 * 60 * 24)));
+    const dayCount = Math.min(totalDays, elapsed);
+    const pct = Math.round((dayCount / totalDays) * 100);
+
+    document.getElementById('progressNum').innerHTML = `${dayCount} <em>/ ${totalDays}</em>`;
+    document.getElementById('progressPct').textContent = `${pct}% timeline elapsed`;
+    document.getElementById('barFill').style.width = pct + '%';
+
+    const currentPhase = getCurrentPhase();
+    document.getElementById('phaseLabel').textContent = `PHASE ${currentPhase.num} / 5`;
+
+    // Phase segments
+    const segs = document.getElementById('phaseSegs').children;
+    PHASES.forEach((p, i) => {
+      segs[i].classList.remove('done', 'current');
+      if (new Date() > new Date(p.end + 'T23:59:59-07:00')) segs[i].classList.add('done');
+      else if (p.num === currentPhase.num) segs[i].classList.add('current');
+    });
+  }
+
+  // ===== TODAY =====
+  function updateToday() {
+    const now = new Date();
+    const day = now.toLocaleDateString('en-US', { weekday: 'long' });
+    const date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const week = getStudyWeek();
+
+    document.getElementById('todayDay').textContent = `TODAY · ${day.toUpperCase()} ${date.toUpperCase()}`;
+
+    if (now < STUDY_START) {
+      document.getElementById('todayTask').textContent = 'Setup Phase';
+      document.getElementById('todayDetail').textContent = 'Build the resource stack before Mon May 11. Subscribe to YouTube channels, download PDFs, set up NotebookLM, download CertFuel app, send Jyselle the support message.';
+      return;
+    }
+
+    if (now > EXAM_DATE) {
+      document.getElementById('todayTask').textContent = '🎯 Exam complete';
+      document.getElementById('todayDetail').textContent = 'You did it. Now decompress before G26.';
+      return;
+    }
+
+    const focus = WEEKLY_FOCUS[week] || WEEKLY_FOCUS[10];
+    const dayName = now.toLocaleDateString('en-US', { weekday: 'short' });
+    const isWeekday = ['Mon','Tue','Wed','Thu','Fri'].includes(dayName);
+    const isSat = dayName === 'Sat';
+
+    let prefix = '';
+    if (isWeekday) prefix = '6:00–7:00 AM AM Block · ';
+    else if (isSat) prefix = '1:00–4:00 PM Saturday Deep Work · ';
+    else prefix = 'Sunday Review · ';
+
+    document.getElementById('todayTask').textContent = prefix + focus.topic;
+    document.getElementById('todayDetail').textContent = focus.detail;
+  }
+
+  // ===== PHASE TABLE =====
+  function renderPhases() {
+    const tbody = document.getElementById('phaseTable');
+    const current = getCurrentPhase();
+    tbody.innerHTML = PHASES.map(p => {
+      const isCurrent = p.num === current.num;
+      const isPast = new Date() > new Date(p.end + 'T23:59:59-07:00');
+      const gateClass = isPast ? 'met' : (isCurrent ? 'active' : '');
+      return `
+        <tr class="${isCurrent ? 'current-phase' : ''}">
+          <td class="phase-num">${String(p.num).padStart(2, '0')}</td>
+          <td class="phase-name">${p.name}</td>
+          <td class="phase-dates">${formatDateRange(p.start, p.end)}</td>
+          <td><span class="gate-pill ${gateClass}">${p.gate}</span></td>
+        </tr>`;
+    }).join('');
+  }
+
+  function formatDateRange(s, e) {
+    const opts = { month: 'short', day: 'numeric' };
+    return `${new Date(s + 'T00:00:00').toLocaleDateString('en-US', opts)} – ${new Date(e + 'T00:00:00').toLocaleDateString('en-US', opts)}`;
+  }
+
+  // ===== EXAMS =====
+  function renderExams() {
+    const list = document.getElementById('examList');
+    const now = new Date();
+    list.innerHTML = EXAMS.map(e => {
+      const examDate = new Date(e.date + 'T13:00:00-07:00');
+      const score = state.examScores[e.num];
+      let scoreHtml;
+      if (score == null) {
+        if (now < examDate) {
+          scoreHtml = `<span class="exam-score locked">—</span>`;
+        } else {
+          scoreHtml = `<button class="btn" style="padding: 4px 10px; font-size: 10px;" onclick="logScore(${e.num})">Log Score</button>`;
+        }
+      } else {
+        const cls = score >= 80 ? 'pass' : (score >= 70 ? 'pending' : 'fail');
+        scoreHtml = `<span class="exam-score ${cls}">${score}%</span>`;
+      }
+      return `
+        <div class="exam-row">
+          <span class="exam-num">${String(e.num).padStart(2, '0')}</span>
+          <div class="exam-name"><strong>${e.name}</strong><span>${e.label}</span></div>
+          <span class="exam-score" style="color: var(--text-faint); font-size: 11px;">75 Q · 1h45</span>
+          ${scoreHtml}
+        </div>`;
+    }).join('');
+
+    updateGate();
+  }
+
+  function updateGate() {
+    const scores = [state.examScores[2], state.examScores[3], state.examScores[4]];
+    const allMet = scores.every(s => s != null && s >= 80);
+    const gateEl = document.getElementById('gateStatus');
+    const textEl = document.getElementById('gateText');
+    if (allMet) {
+      gateEl.classList.add('met');
+      textEl.textContent = 'GATE CLEARED · Test day eligible';
+    } else {
+      gateEl.classList.remove('met');
+      const passed = scores.filter(s => s != null && s >= 80).length;
+      const taken = scores.filter(s => s != null).length;
+      textEl.textContent = taken === 0
+        ? 'Awaiting practice exam scores'
+        : `${passed} / 3 gate exams at 80%+ · ${taken} taken`;
+    }
+  }
+
+  // ===== STATS =====
+  function updateStats() {
+    // Streak
+    const sortedSessions = [...state.sessions].sort((a, b) => b.date.localeCompare(a.date));
+    let streak = 0;
+    const today = new Date().toISOString().split('T')[0];
+    let checkDate = new Date();
+    for (let i = 0; i < 100; i++) {
+      const ds = checkDate.toISOString().split('T')[0];
+      if (sortedSessions.find(s => s.date === ds)) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else if (ds === today) {
+        checkDate.setDate(checkDate.getDate() - 1); // allow today not yet logged
+      } else {
+        break;
+      }
+    }
+    document.getElementById('streak').textContent = streak;
+
+    // Hours
+    const totalHrs = state.sessions.reduce((sum, s) => sum + (s.hours || 0), 0);
+    document.getElementById('hoursLogged').textContent = totalHrs.toFixed(1);
+
+    // Confidence (7-day avg)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const recent = state.sessions.filter(s => new Date(s.date) >= sevenDaysAgo && s.confidence);
+    if (recent.length === 0) {
+      document.getElementById('confValue').textContent = '—';
+    } else {
+      const avg = recent.reduce((sum, s) => sum + s.confidence, 0) / recent.length;
+      document.getElementById('confValue').innerHTML = `<em>${avg.toFixed(1)}</em>`;
+    }
+  }
+
+  // ===== ACTIONS =====
+  function logSession() {
+    const hours = parseFloat(prompt('Hours studied today?', '1') || 0);
+    if (!hours) return;
+    const conf = parseInt(prompt('Confidence 1–5?', '3') || 0);
+    const today = new Date().toISOString().split('T')[0];
+    state.sessions = state.sessions.filter(s => s.date !== today);
+    state.sessions.push({ date: today, hours, confidence: conf });
+    saveState(state);
+    updateStats();
+    alert('Logged. Keep going.');
+  }
+
+  function logScore(num) {
+    const score = parseInt(prompt(`Practice Exam #${num} score (%)?`, '80') || 0);
+    if (!score) return;
+    state.examScores[num] = score;
+    saveState(state);
+    renderExams();
+  }
+
+  // ===== INIT =====
+  updateCountdown();
+  updateProgress();
+  updateToday();
+  renderPhases();
+  renderExams();
+  updateStats();
+
+  setInterval(updateCountdown, 60000);
+  setInterval(updateToday, 60000);
+</script>
+
+</body>
+</html>

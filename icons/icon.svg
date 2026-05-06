@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="38%" r="60%">
+      <stop offset="0%" stop-color="#00d97e" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="#0a5d2e" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#0a5d2e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sFill" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1cf593"/>
+      <stop offset="100%" stop-color="#00b86b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="#0a0a0a"/>
+  <rect width="1024" height="1024" fill="url(#glow)"/>
+  <text x="512" y="688"
+        text-anchor="middle"
+        font-family="Fraunces, Georgia, 'Times New Roman', serif"
+        font-style="italic"
+        font-weight="900"
+        font-size="780"
+        fill="url(#sFill)">S</text>
+  <line x1="380" y1="816" x2="644" y2="816" stroke="#00d97e" stroke-width="4"/>
+  <text x="512" y="892"
+        text-anchor="middle"
+        font-family="'JetBrains Mono', 'Courier New', monospace"
+        font-weight="700"
+        font-size="86"
+        letter-spacing="32"
+        fill="#f5f1e8">SIE</text>
+  <text x="48" y="76"
+        font-family="'JetBrains Mono', 'Courier New', monospace"
+        font-weight="500"
+        font-size="40"
+        letter-spacing="6"
+        fill="#4a463f">07.10.26</text>
+</svg>
