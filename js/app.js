@@ -86,6 +86,25 @@ const toggleWhiteboard = (week) => {
   renderWhiteboards(state);
 };
 
+const toggleWeekItem = (week, idx) => {
+  if (!state.weekItems[week]) state.weekItems[week] = [];
+  state.weekItems[week][idx] = !state.weekItems[week][idx];
+  saveState(state);
+  renderToday(state);
+};
+
+const markWeekComplete = (week) => {
+  state.completedWeeks[week] = new Date().toISOString();
+  saveState(state);
+  renderToday(state);
+};
+
+const unmarkWeekComplete = (week) => {
+  delete state.completedWeeks[week];
+  saveState(state);
+  renderToday(state);
+};
+
 const openNotebookLM = () => {
   const week = getStudyWeek();
   const focus = WEEKLY_FOCUS[week] || WEEKLY_FOCUS[10];
@@ -152,6 +171,11 @@ document.addEventListener('click', (e) => {
       break;
     }
     case 'toggle-whiteboard': toggleWhiteboard(parseInt(t.dataset.week, 10)); break;
+    case 'toggle-week-item':
+      toggleWeekItem(parseInt(t.dataset.week, 10), parseInt(t.dataset.idx, 10));
+      break;
+    case 'mark-week': markWeekComplete(parseInt(t.dataset.week, 10)); break;
+    case 'unmark-week': unmarkWeekComplete(parseInt(t.dataset.week, 10)); break;
     case 'exit-testday': exitTestDay(); break;
     case 'dismiss-install': dismissInstallHint(); break;
     case 'export': exportState(state); break;
@@ -184,4 +208,4 @@ renderAll(state);
 maybeShowTestDay();
 showInstallHintIfNeeded();
 setInterval(renderCountdown, 60000);
-setInterval(() => { renderToday(); maybeShowTestDay(); }, 60000);
+setInterval(() => { renderToday(state); maybeShowTestDay(); }, 60000);

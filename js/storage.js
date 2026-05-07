@@ -8,6 +8,8 @@ const emptyState = () => ({
   sessions: [],          // [{ date, hours, confidence, topic, loggedAt }]
   exams: [],             // [{ num, score, weakUnits, notes, loggedAt }]
   whiteboards: {},       // { [week]: ISOString }
+  weekItems: {},         // { [week]: [bool, bool, bool, bool] }
+  completedWeeks: {},    // { [week]: ISOString }
   installHintDismissed: false
 });
 

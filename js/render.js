@@ -33,35 +33,104 @@ const renderProgress = () => {
   });
 };
 
-const renderToday = () => {
+const renderToday = (state) => {
   const now = new Date();
   const day = now.toLocaleDateString('en-US', { weekday: 'long' });
   const date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const week = getStudyWeek();
   $('todayDay').textContent = `TODAY · ${day.toUpperCase()} ${date.toUpperCase()}`;
 
+  // Pre-start: setup phase, no drift, no checklist.
   if (now < STUDY_START) {
+    $('driftRow').innerHTML = '';
+    $('weekChecklist').innerHTML = '';
     $('todayTask').textContent = 'Setup Phase';
     $('todayDetail').textContent = 'Build the resource stack before Mon May 11. Subscribe to YouTube channels, download PDFs, set up NotebookLM, send Jyselle the support message.';
     return;
   }
+
+  // Post-exam.
   if (now > EXAM_DATE) {
+    $('driftRow').innerHTML = '';
+    $('weekChecklist').innerHTML = '';
     $('todayTask').textContent = 'Exam complete';
     $('todayDetail').textContent = 'You did it. Now decompress before G26.';
     return;
   }
 
-  const focus = WEEKLY_FOCUS[week] || WEEKLY_FOCUS[10];
+  const progressWeek = getProgressWeek(state);
+  const calendarWeek = getCalendarWeek();
+  const drift = getDrift(state);
+  const remaining = getRemainingItems(state, progressWeek);
+  const focus = WEEKLY_FOCUS[progressWeek] || WEEKLY_FOCUS[10];
+
+  // Drift pills.
+  let driftCls, driftLabel;
+  if (drift === 0) { driftCls = 'on-track'; driftLabel = 'ON TRACK'; }
+  else if (drift > 0) { driftCls = 'ahead'; driftLabel = `+${drift} AHEAD`; }
+  else if (drift === -1) { driftCls = 'behind'; driftLabel = '−1 BEHIND'; }
+  else { driftCls = 'way-behind'; driftLabel = `${drift} BEHIND`; }
+
+  $('driftRow').innerHTML = `
+    <span class="drift-pill">PROGRESS · WK ${progressWeek}</span>
+    <span class="drift-pill">CAL · WK ${calendarWeek}</span>
+    <span class="drift-pill ${driftCls}">${driftLabel}</span>
+  `;
+
+  // Time-block prefix. If behind on a Sat or Sun, swap to "Catch Up".
   const dayName = now.toLocaleDateString('en-US', { weekday: 'short' });
   const isWeekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(dayName);
   const isSat = dayName === 'Sat';
-  let prefix = '';
-  if (isWeekday) prefix = '6:00–7:00 AM Block · ';
-  else if (isSat) prefix = '1:00–4:00 PM Saturday Deep Work · ';
-  else prefix = 'Sunday Review · ';
+  let prefix;
+  if (drift < 0 && (isSat || dayName === 'Sun') && remaining > 0) {
+    prefix = `Catch Up · ${remaining} item${remaining === 1 ? '' : 's'} left · `;
+  } else if (isWeekday) {
+    prefix = '6:00–7:00 AM Block · ';
+  } else if (isSat) {
+    prefix = '1:00–4:00 PM Saturday Deep Work · ';
+  } else {
+    prefix = 'Sunday Review · ';
+  }
   $('todayTask').textContent = prefix + focus.topic;
   $('todayDetail').textContent = focus.detail;
+
+  renderChecklist(state, progressWeek);
 };
+
+const renderChecklist = (state, week) => {
+  const list = $('weekChecklist');
+  const items = WEEKLY_CHECKLIST[week] || [];
+  if (items.length === 0) { list.innerHTML = ''; return; }
+  const checks = state.weekItems[week] || [];
+  const isCompleted = !!state.completedWeeks[week];
+  const doneCount = items.filter((_, i) => checks[i] || isCompleted).length;
+
+  const itemsHtml = items.map((it, i) => {
+    const done = isCompleted || checks[i];
+    const safe = it.replace(/</g, '&lt;');
+    return `
+      <div class="check-item ${done ? 'done' : ''}" data-action="toggle-week-item" data-week="${week}" data-idx="${i}">
+        <span class="check-box">${done ? '●' : '○'}</span>
+        <span class="check-text">${safe}</span>
+      </div>`;
+  }).join('');
+
+  const btnLabel = isCompleted ? 'Undo Week Complete' : 'Mark Week Complete';
+  const btnAction = isCompleted ? 'unmark-week' : 'mark-week';
+  const btnCls = isCompleted ? 'btn' : 'btn primary';
+
+  list.innerHTML = `
+    <div class="checklist-meta">
+      <span>Week ${week} · <strong>${focusTopic(week)}</strong></span>
+      <span>${doneCount} / ${items.length} done</span>
+    </div>
+    ${itemsHtml}
+    <div class="checklist-actions">
+      <button class="${btnCls}" data-action="${btnAction}" data-week="${week}">${btnLabel}</button>
+    </div>
+  `;
+};
+
+const focusTopic = (week) => (WEEKLY_FOCUS[week] || WEEKLY_FOCUS[10]).topic;
 
 const renderPhases = () => {
   const tbody = $('phaseTable');
@@ -295,7 +364,7 @@ const renderWeakTags = (selected) => {
 const renderAll = (state) => {
   renderCountdown();
   renderProgress();
-  renderToday();
+  renderToday(state);
   renderPhases();
   renderExams(state);
   renderSessions(state);

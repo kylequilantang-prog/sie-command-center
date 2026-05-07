@@ -47,6 +47,71 @@ const WEAK_UNITS = [
   'Order Types', 'Retirement', 'Tax', 'Prohibited Practices'
 ];
 
+// 4 atomic items per week. The "Today's Focus" topic/detail comes from
+// WEEKLY_FOCUS; this is the actionable break-down the user checks off.
+const WEEKLY_CHECKLIST = {
+  1: [
+    'Capital Advantage videos 1–4',
+    'Chapter notes → upload to NotebookLM',
+    'Whiteboard: capital flow & participants',
+    'Ch 1–2 quiz ≥ 70%'
+  ],
+  2: [
+    'Capital Advantage: regulators block',
+    'Series 7 Guru regulators (Two-Teachers cross-check)',
+    'NotebookLM regulator mind map',
+    'Whiteboard: FINRA / SEC / MSRB / SIPC'
+  ],
+  3: [
+    'Equity videos (CapAd + Series 7 Guru)',
+    'Whiteboard: equity rights chart',
+    'SIEPracticeExam equity question set',
+    'Quizlet · 50 equity cards'
+  ],
+  4: [
+    'Debt videos (CapAd + Series 7 Guru)',
+    'Whiteboard: yield curve & bond pricing',
+    'Debt drills · 50+ questions',
+    'Quizlet · 50 debt cards'
+  ],
+  5: [
+    'Packaged products videos',
+    'Whiteboard: VA mechanics (lean on WFG)',
+    'Mutual fund / ETF question set',
+    'Knopman packaged products test'
+  ],
+  6: [
+    'Options videos',
+    'Whiteboard: options strategies grid',
+    'IRA types: notebook summary',
+    'Options + retirement question set'
+  ],
+  7: [
+    'Trading & markets videos',
+    'Whiteboard: order flow & T+1 settlement',
+    'Margin / order-types Quizlet',
+    'Operations practice test ≥ 75%'
+  ],
+  8: [
+    'Customer accounts videos',
+    'Suitability & prohibited practices notes',
+    'Whiteboard: AML / KYC flow',
+    'Practice Exam #1 · Diagnostic (Sat Jun 27)'
+  ],
+  9: [
+    'Review top 5 weak units',
+    'Gate Exam #1 (Fri Jul 3)',
+    'Gate Exam #2 (Sat Jul 4)',
+    'Re-watch any weak topic videos'
+  ],
+  10: [
+    'Gate Exam #3 · FINRA Official (Mon Jul 6)',
+    'Light flashcards Tue–Wed',
+    'Rest Thursday · no studying',
+    'Sleep, hydrate, taper'
+  ]
+};
+
 // NotebookLM URLs — replace per-week as Kyle creates each notebook.
 // Until then, all routes fall through to the home.
 const NOTEBOOK_URLS = {
@@ -65,9 +130,35 @@ const getCurrentPhase = () => {
   return PHASES[PHASES.length - 1];
 };
 
-const getStudyWeek = () => {
+// Calendar clock — what's true on the wall.
+const getCalendarWeek = () => {
   const now = new Date();
   if (now < STUDY_START) return 0;
   const days = Math.floor((now - STUDY_START) / (1000 * 60 * 60 * 24));
   return Math.min(10, Math.floor(days / 7) + 1);
 };
+
+// Progress clock — what the user has actually finished.
+// First uncompleted week, capped at 10. Skipping ahead is allowed:
+// mark earlier weeks complete to advance.
+const getProgressWeek = (state) => {
+  for (let w = 1; w <= 10; w++) {
+    if (!state.completedWeeks[w]) return w;
+  }
+  return 10;
+};
+
+const getDrift = (state) => {
+  const cal = getCalendarWeek();
+  if (cal === 0) return 0; // pre-start, no drift
+  return getProgressWeek(state) - cal;
+};
+
+const getRemainingItems = (state, week) => {
+  const items = WEEKLY_CHECKLIST[week] || [];
+  const checks = state.weekItems[week] || [];
+  return items.length - items.filter((_, i) => checks[i]).length;
+};
+
+// Kept for back-compat with any caller still using the old name.
+const getStudyWeek = getCalendarWeek;
