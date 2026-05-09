@@ -229,6 +229,8 @@ if ('serviceWorker' in navigator) {
 }
 
 // Init
+const versionEl = document.getElementById('appVersion');
+if (versionEl) versionEl.textContent = APP_VERSION;
 renderAll(state);
 maybeShowTestDay();
 showInstallHintIfNeeded();

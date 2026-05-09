@@ -1,5 +1,9 @@
 // SIE Command Center — static data (dates, phases, focus, exams, resources)
 
+// Build version. Bump when shipping. Surfaces in the footer so Kyle can
+// glance at his iPhone and know if the home-screen PWA picked up the new code.
+const APP_VERSION = 'v2.2.0';
+
 const EXAM_DATE = new Date('2026-07-10T10:15:00-07:00');
 const STUDY_START = new Date('2026-05-11T06:00:00-07:00');
 
