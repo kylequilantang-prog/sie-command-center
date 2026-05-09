@@ -55,11 +55,13 @@
     <div class="today-block">
       <div class="today-day" id="todayDay">TODAY · LOADING…</div>
       <div class="drift-row" id="driftRow"></div>
+      <div class="lesson-card" id="lessonCard"></div>
       <div class="today-task" id="todayTask">—</div>
       <div class="today-detail" id="todayDetail">Loading current focus…</div>
       <div class="week-checklist" id="weekChecklist"></div>
       <div class="today-actions">
         <button class="btn primary" data-action="open-session">Log Session ✓</button>
+        <button class="btn" data-action="open-curriculum">Full Curriculum</button>
         <button class="btn" data-action="open-notebook">NotebookLM</button>
         <button class="btn" data-action="open-ticktick">TickTick</button>
       </div>
@@ -290,6 +292,16 @@
         <button class="btn primary" style="width:100%; padding:14px;" data-action="save-exam">Save Score</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="curriculumModal" data-dismiss="backdrop">
+  <div class="modal modal-wide" role="dialog" aria-labelledby="curriculumTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="curriculumTitle">Full <strong>Curriculum</strong> · 10-Week Plan</div>
+      <button class="modal-close" data-action="close-curriculum" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="curriculumBody"></div>
   </div>
 </div>
 

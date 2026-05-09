@@ -1,7 +1,7 @@
 // SIE Command Center — offline shell cache.
 // Bump CACHE_VERSION when shipping new HTML/CSS/JS so clients pull fresh assets.
 
-const CACHE_VERSION = 'sie-v2.1.0';
+const CACHE_VERSION = 'sie-v2.2.0';
 const CACHE_FILES = [
   './',
   './index.html',

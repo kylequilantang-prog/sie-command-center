@@ -33,35 +33,82 @@ const renderProgress = () => {
   });
 };
 
+const safe = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 const renderToday = (state) => {
   const now = new Date();
   const day = now.toLocaleDateString('en-US', { weekday: 'long' });
   const date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   $('todayDay').textContent = `TODAY · ${day.toUpperCase()} ${date.toUpperCase()}`;
 
-  // Pre-start: setup phase, no drift, no checklist.
+  // Pre-launch: setup phase.
   if (now < STUDY_START) {
-    $('driftRow').innerHTML = '';
-    $('weekChecklist').innerHTML = '';
-    $('todayTask').textContent = 'Setup Phase';
-    $('todayDetail').textContent = 'Build the resource stack before Mon May 11. Subscribe to YouTube channels, download PDFs, set up NotebookLM, send Jyselle the support message.';
+    renderSetupView(state);
     return;
   }
 
   // Post-exam.
   if (now > EXAM_DATE) {
     $('driftRow').innerHTML = '';
+    $('lessonCard').innerHTML = '';
     $('weekChecklist').innerHTML = '';
     $('todayTask').textContent = 'Exam complete';
     $('todayDetail').textContent = 'You did it. Now decompress before G26.';
     return;
   }
 
+  renderCurriculumView(state);
+};
+
+const renderSetupView = (state) => {
+  const checks = state.setupTasks || [];
+  const remaining = SETUP_TASKS.length - SETUP_TASKS.filter((_, i) => checks[i]).length;
+  const daysToStart = Math.max(0, Math.ceil((STUDY_START - new Date()) / (1000 * 60 * 60 * 24)));
+
+  $('driftRow').innerHTML = `
+    <span class="drift-pill">PRE-LAUNCH</span>
+    <span class="drift-pill ${remaining === 0 ? 'on-track' : 'behind'}">${remaining === 0 ? 'STACK READY' : remaining + ' TO DO'}</span>
+    <span class="drift-pill">${daysToStart} DAYS TO MAY 11</span>
+  `;
+
+  $('lessonCard').innerHTML = `
+    <div class="lesson-meta"><span class="lesson-pill muted">SETUP PHASE</span></div>
+    <div class="lesson-title">Build the resource stack before Mon May 11.</div>
+    <div class="lesson-outline">Get the channels subscribed, the FINRA outline downloaded, NotebookLM ready, and the support text sent. <strong>Day 1 starts cold otherwise.</strong></div>
+  `;
+
+  $('todayTask').textContent = '';
+  $('todayDetail').textContent = '';
+
+  const itemsHtml = SETUP_TASKS.map((t, i) => {
+    const done = checks[i];
+    const link = t.resource
+      ? `<a class="day-link" href="${safe(t.resource)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a>`
+      : '<span class="day-link placeholder">↗</span>';
+    return `
+      <div class="day-item ${done ? 'done' : ''}" data-action="toggle-setup" data-idx="${i}">
+        <span class="check-box">${done ? '●' : '○'}</span>
+        <span class="day-label">#${i + 1}</span>
+        <span class="action-tag">${safe(t.action)}</span>
+        <span class="day-title">${safe(t.title)}</span>
+        <span class="day-time">${safe(t.time || '')}</span>
+        ${link}
+      </div>`;
+  }).join('');
+
+  $('weekChecklist').innerHTML = `
+    <div class="checklist-meta">
+      <span>Pre-Launch · <strong>Setup Stack</strong></span>
+      <span>${SETUP_TASKS.length - remaining} / ${SETUP_TASKS.length} done</span>
+    </div>
+    ${itemsHtml}
+  `;
+};
+
+const renderCurriculumView = (state) => {
   const progressWeek = getProgressWeek(state);
   const calendarWeek = getCalendarWeek();
   const drift = getDrift(state);
-  const remaining = getRemainingItems(state, progressWeek);
-  const focus = WEEKLY_FOCUS[progressWeek] || WEEKLY_FOCUS[10];
 
   // Drift pills.
   let driftCls, driftLabel;
@@ -69,48 +116,84 @@ const renderToday = (state) => {
   else if (drift > 0) { driftCls = 'ahead'; driftLabel = `+${drift} AHEAD`; }
   else if (drift === -1) { driftCls = 'behind'; driftLabel = '−1 BEHIND'; }
   else { driftCls = 'way-behind'; driftLabel = `${drift} BEHIND`; }
-
   $('driftRow').innerHTML = `
     <span class="drift-pill">PROGRESS · WK ${progressWeek}</span>
     <span class="drift-pill">CAL · WK ${calendarWeek}</span>
     <span class="drift-pill ${driftCls}">${driftLabel}</span>
   `;
 
-  // Time-block prefix. If behind on a Sat or Sun, swap to "Catch Up".
-  const dayName = now.toLocaleDateString('en-US', { weekday: 'short' });
-  const isWeekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(dayName);
-  const isSat = dayName === 'Sat';
-  let prefix;
-  if (drift < 0 && (isSat || dayName === 'Sun') && remaining > 0) {
-    prefix = `Catch Up · ${remaining} item${remaining === 1 ? '' : 's'} left · `;
-  } else if (isWeekday) {
-    prefix = '6:00–7:00 AM Block · ';
-  } else if (isSat) {
-    prefix = '1:00–4:00 PM Saturday Deep Work · ';
-  } else {
-    prefix = 'Sunday Review · ';
-  }
-  $('todayTask').textContent = prefix + focus.topic;
-  $('todayDetail').textContent = focus.detail;
+  const week = CURRICULUM[progressWeek] || CURRICULUM[10];
+  $('todayTask').textContent = `Week ${progressWeek} · ${week.topic}`;
+  $('todayDetail').textContent = `${week.section} · ${(WEEKLY_FOCUS[progressWeek] || WEEKLY_FOCUS[10]).detail}`;
 
-  renderChecklist(state, progressWeek);
+  renderLessonCard(state, progressWeek);
+  renderDayList(state, progressWeek);
 };
 
-const renderChecklist = (state, week) => {
+const renderLessonCard = (state, week) => {
+  const card = $('lessonCard');
+  const isCompleted = !!state.completedWeeks[week];
+  if (isCompleted) {
+    card.innerHTML = `
+      <div class="lesson-meta"><span class="lesson-pill">WEEK COMPLETE</span></div>
+      <div class="lesson-title">Week ${week} marked done. Advance, rest, or revisit.</div>
+      <div class="lesson-done">✓ All ${getWeekDays(week).length} day-items checked</div>
+    `;
+    return;
+  }
+
+  const next = getNextActionableItem(state, week);
+  if (!next) {
+    card.innerHTML = `
+      <div class="lesson-meta"><span class="lesson-pill">READY TO CLOSE</span></div>
+      <div class="lesson-title">All 7 items checked. Tap "Mark Week Complete" below.</div>
+    `;
+    return;
+  }
+
+  const { item, catchUp } = next;
+  const tagPill = catchUp
+    ? `<span class="lesson-pill catchup">CATCH UP · ${item.day.toUpperCase()}</span>`
+    : `<span class="lesson-pill">${item.day.toUpperCase()} · TODAY</span>`;
+  const actionPill = `<span class="lesson-pill muted">${safe(item.action)}</span>`;
+  const timePill = item.time ? `<span class="lesson-pill muted">${safe(item.time)}</span>` : '';
+  const outline = item.outline ? `<div class="lesson-outline">FINRA: <strong>${safe(item.outline)}</strong></div>` : '';
+  const link = item.resource
+    ? `<a class="lesson-resource" href="${safe(item.resource)}" target="_blank" rel="noopener">▶ Open Resource</a>`
+    : '';
+
+  card.innerHTML = `
+    <div class="lesson-meta">${tagPill}${actionPill}${timePill}</div>
+    <div class="lesson-title">${safe(item.title)}</div>
+    ${outline}
+    ${link}
+  `;
+};
+
+const renderDayList = (state, week) => {
   const list = $('weekChecklist');
-  const items = WEEKLY_CHECKLIST[week] || [];
-  if (items.length === 0) { list.innerHTML = ''; return; }
+  const days = getWeekDays(week);
+  if (days.length === 0) { list.innerHTML = ''; return; }
   const checks = state.weekItems[week] || [];
   const isCompleted = !!state.completedWeeks[week];
-  const doneCount = items.filter((_, i) => checks[i] || isCompleted).length;
+  const todayIdx = (getCalendarWeek() === week) ? getTodayDayIdx() : -1;
+  const doneCount = days.filter((_, i) => isCompleted || checks[i]).length;
 
-  const itemsHtml = items.map((it, i) => {
+  const itemsHtml = days.map((d, i) => {
     const done = isCompleted || checks[i];
-    const safe = it.replace(/</g, '&lt;');
+    const isToday = i === todayIdx;
+    const link = d.resource
+      ? `<a class="day-link" href="${safe(d.resource)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a>`
+      : '<span class="day-link placeholder">↗</span>';
     return `
-      <div class="check-item ${done ? 'done' : ''}" data-action="toggle-week-item" data-week="${week}" data-idx="${i}">
+      <div class="day-item ${done ? 'done' : ''} ${isToday ? 'is-today' : ''}"
+           data-action="toggle-week-item" data-week="${week}" data-idx="${i}">
         <span class="check-box">${done ? '●' : '○'}</span>
-        <span class="check-text">${safe}</span>
+        <span class="day-label">${safe(d.day)}</span>
+        <span class="action-tag">${safe(d.action)}</span>
+        <span class="day-title">${safe(d.title)}</span>
+        <span class="day-time">${safe(d.time || '')}</span>
+        ${link}
       </div>`;
   }).join('');
 
@@ -120,8 +203,8 @@ const renderChecklist = (state, week) => {
 
   list.innerHTML = `
     <div class="checklist-meta">
-      <span>Week ${week} · <strong>${focusTopic(week)}</strong></span>
-      <span>${doneCount} / ${items.length} done</span>
+      <span>Week ${week} · <strong>${safe((WEEKLY_FOCUS[week] || WEEKLY_FOCUS[10]).topic)}</strong></span>
+      <span>${doneCount} / ${days.length} done</span>
     </div>
     ${itemsHtml}
     <div class="checklist-actions">
@@ -130,7 +213,60 @@ const renderChecklist = (state, week) => {
   `;
 };
 
-const focusTopic = (week) => (WEEKLY_FOCUS[week] || WEEKLY_FOCUS[10]).topic;
+// Curriculum modal — full 10-week accordion.
+const renderCurriculumModal = (state) => {
+  const body = $('curriculumBody');
+  const progressWeek = getProgressWeek(state);
+  body.innerHTML = Object.keys(CURRICULUM).sort((a, b) => Number(a) - Number(b)).map((wk) => {
+    const week = CURRICULUM[wk];
+    const w = Number(wk);
+    const checks = state.weekItems[w] || [];
+    const isCompleted = !!state.completedWeeks[w];
+    const doneCount = week.days.filter((_, i) => isCompleted || checks[i]).length;
+    const isCurrent = w === progressWeek;
+    const expanded = isCurrent;
+
+    const daysHtml = week.days.map((d, i) => {
+      const done = isCompleted || checks[i];
+      const link = d.resource
+        ? `<a class="day-link" href="${safe(d.resource)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a>`
+        : '<span class="day-link placeholder">↗</span>';
+      return `
+        <div class="day-item ${done ? 'done' : ''}"
+             data-action="toggle-week-item" data-week="${w}" data-idx="${i}">
+          <span class="check-box">${done ? '●' : '○'}</span>
+          <span class="day-label">${safe(d.day)}</span>
+          <span class="action-tag">${safe(d.action)}</span>
+          <span class="day-title">${safe(d.title)}</span>
+          <span class="day-time">${safe(d.time || '')}</span>
+          ${link}
+        </div>`;
+    }).join('');
+
+    const stateClass = [
+      isCurrent ? 'is-current' : '',
+      isCompleted ? 'is-complete' : '',
+      expanded ? 'expanded' : ''
+    ].join(' ');
+
+    return `
+      <div class="curriculum-week ${stateClass}" data-week="${w}">
+        <div class="curriculum-week-header" data-action="toggle-curriculum-week" data-week="${w}">
+          <span class="week-num">${String(w).padStart(2, '0')}</span>
+          <div class="week-meta">
+            <div class="week-topic">${safe(week.topic)}</div>
+            <div class="week-section">${safe(week.section)}</div>
+          </div>
+          <span class="week-progress">${doneCount} / ${week.days.length}${isCompleted ? ' · DONE' : ''}</span>
+          <span class="week-toggle">▾</span>
+        </div>
+        <div class="week-days">
+          ${daysHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+};
 
 const renderPhases = () => {
   const tbody = $('phaseTable');

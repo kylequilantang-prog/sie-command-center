@@ -86,23 +86,40 @@ const toggleWhiteboard = (week) => {
   renderWhiteboards(state);
 };
 
+const refreshWeekViews = () => {
+  renderToday(state);
+  if ($('curriculumModal').classList.contains('open')) renderCurriculumModal(state);
+};
+
 const toggleWeekItem = (week, idx) => {
   if (!state.weekItems[week]) state.weekItems[week] = [];
   state.weekItems[week][idx] = !state.weekItems[week][idx];
   saveState(state);
-  renderToday(state);
+  refreshWeekViews();
 };
 
 const markWeekComplete = (week) => {
   state.completedWeeks[week] = new Date().toISOString();
   saveState(state);
-  renderToday(state);
+  refreshWeekViews();
 };
 
 const unmarkWeekComplete = (week) => {
   delete state.completedWeeks[week];
   saveState(state);
+  refreshWeekViews();
+};
+
+const toggleSetupTask = (idx) => {
+  if (!state.setupTasks) state.setupTasks = [];
+  state.setupTasks[idx] = !state.setupTasks[idx];
+  saveState(state);
   renderToday(state);
+};
+
+const openCurriculum = () => {
+  renderCurriculumModal(state);
+  openModal('curriculumModal');
 };
 
 const openNotebookLM = () => {
@@ -176,6 +193,14 @@ document.addEventListener('click', (e) => {
       break;
     case 'mark-week': markWeekComplete(parseInt(t.dataset.week, 10)); break;
     case 'unmark-week': unmarkWeekComplete(parseInt(t.dataset.week, 10)); break;
+    case 'toggle-setup': toggleSetupTask(parseInt(t.dataset.idx, 10)); break;
+    case 'open-curriculum': openCurriculum(); break;
+    case 'close-curriculum': closeModal('curriculumModal'); break;
+    case 'toggle-curriculum-week': {
+      const wkEl = t.closest('.curriculum-week');
+      if (wkEl) wkEl.classList.toggle('expanded');
+      break;
+    }
     case 'exit-testday': exitTestDay(); break;
     case 'dismiss-install': dismissInstallHint(); break;
     case 'export': exportState(state); break;

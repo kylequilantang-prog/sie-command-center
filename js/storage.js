@@ -8,8 +8,9 @@ const emptyState = () => ({
   sessions: [],          // [{ date, hours, confidence, topic, loggedAt }]
   exams: [],             // [{ num, score, weakUnits, notes, loggedAt }]
   whiteboards: {},       // { [week]: ISOString }
-  weekItems: {},         // { [week]: [bool, bool, bool, bool] }
+  weekItems: {},         // { [week]: [bool x 7] — Mon..Sun }
   completedWeeks: {},    // { [week]: ISOString }
+  setupTasks: [],        // [bool x SETUP_TASKS.length]
   installHintDismissed: false
 });
 
